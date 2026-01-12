@@ -3,6 +3,31 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
+
+class LDA(nn.Module):
+    def __init__(self, T):
+        super(LDA, self).__init__()
+        self.fc = nn.Linear(2,2)
+
+    def forward(self, X):
+        I = X[:, :, 0].sum(dim=1)  # (batch_size,)
+        Q = X[:, :, 1].sum(dim=1)  # (batch_size,)
+        z = torch.stack([I, Q], dim=-1)
+        return self.fc(z)
+
+class MatchedFilter(nn.Module):
+    def __init__(self, T):
+        super(MatchedFilter, self).__init__()
+        self.window = nn.Parameter(torch.ones(T))  # (time_steps,)
+        self.fc = nn.Linear(2,2)
+
+    def forward(self, X):
+        w = self.window.view(1, -1)      # (1,T)
+        I = (X[:, :, 0] * w).sum(dim=1)  # (batch_size,)
+        Q = (X[:, :, 1] * w).sum(dim=1)  # (batch_size,)
+        z = torch.stack([I, Q], dim=-1)
+        return self.fc(z)
+
 class TinyCNN(nn.Module):
     def __init__(self, T, hidden=32):
         super().__init__()
@@ -48,6 +73,7 @@ class AmortizedBayesNet(nn.Module):
 class PositionalEncoding(nn.Module):
     def __init__(self, d_model, max_len=4096):
         super().__init__()
+        self.pe: torch.Tensor
         pe = torch.zeros(max_len, d_model)
         position = torch.arange(0, max_len).unsqueeze(1)
         div = torch.exp(torch.arange(0, d_model, 2) * (-math.log(10000.0) / d_model))
@@ -76,3 +102,4 @@ class TinyTransformer(nn.Module):
         h = self.enc(h)
         h = h.mean(dim=1)
         return self.head(h)
+

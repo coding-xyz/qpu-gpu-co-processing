@@ -3,13 +3,7 @@ import torch
 import torch.nn.functional as F
 from .bayes_core import bayes_posterior_from_templates
 from .path_signature_features import signature2_features, SignatureLogReg
-
-def load_templates_from_meta(meta):
-    s0 = np.array(meta["template_s0_re"], np.float32) + 1j*np.array(meta["template_s0_im"], np.float32)
-    s1 = np.array(meta["template_s1_re"], np.float32) + 1j*np.array(meta["template_s1_im"], np.float32)
-    mu0 = np.stack([s0.real, s0.imag], axis=-1).astype(np.float32)
-    mu1 = np.stack([s1.real, s1.imag], axis=-1).astype(np.float32)
-    return mu0, mu1
+import time
 
 @torch.no_grad()
 def eval_bayes(X, y, mu0, mu1, sigma, device):
@@ -55,6 +49,8 @@ def eval_signature(model, X, y, device, batch=4096):
 def train_simple(model, train_loader, device, epochs=5, lr=2e-3):
     model.to(device)
     opt = torch.optim.AdamW(model.parameters(), lr=lr)
+    history = {}
+    t0 = time.time()
     for _ in range(epochs):
         model.train()
         for X,y in train_loader:
@@ -66,4 +62,5 @@ def train_simple(model, train_loader, device, epochs=5, lr=2e-3):
             opt.zero_grad(set_to_none=True)
             loss.backward()
             opt.step()
-    return model
+    history["training time"] = time.time() - t0
+    return model, history

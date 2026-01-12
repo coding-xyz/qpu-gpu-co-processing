@@ -24,7 +24,6 @@ def tanh_square_pulse(t, T_on, T_off, rise, amp):
     off = 0.5*(1 + np.tanh((T_off - t)/rise))
     return amp * on * off
 
-
 # -------------------------
 # core simulator (single shot)
 # -------------------------
@@ -222,7 +221,7 @@ def main():
         y_train=y_train,
         X_test=X_test,
         y_test=y_test,
-        params_json=json.dumps(params, ensure_ascii=False),
+        meta=json.dumps(params, ensure_ascii=False),
     )
 
     print(f"Saved {args.out_npz}")
