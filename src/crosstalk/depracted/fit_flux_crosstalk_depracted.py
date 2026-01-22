@@ -63,7 +63,7 @@ def fit_flux_crosstalk_torch(
     k, n = Phi.shape
 
     C = torch.nn.Parameter(0.01 * torch.randn(n, n, device=device, dtype=cfg.dtype))
-    D = torch.nn.Parameter(torch.zeros(n, n, device=device, dtype=cfg.dtype)) if cfg.fit_quadratic else None
+    D = torch.nn.Parameter(torch.zeros(n, n, n, device=device, dtype=cfg.dtype)) if cfg.fit_quadratic else None
 
     opt = torch.optim.Adam([C] + ([D] if D is not None else []), lr=cfg.lr)
 
@@ -89,7 +89,8 @@ def fit_flux_crosstalk_torch(
     # RMSE on CPU
     pred_cpu = Phi @ C_hat.T
     if D_hat is not None:
-        pred_cpu = pred_cpu + (Phi ** 2) @ D_hat.T
+        Phi_tensor = Phi[:, :, None] * Phi[:, None, :]  # Shape (k, n, n)
+        pred_cpu += np.tensordot(Phi_tensor, D_hat, axes=([1, 2], [1, 2]))
     resid = (pred_cpu - omega).astype(np.float64)
     rmse = float(np.sqrt(np.mean(resid ** 2)))
 
