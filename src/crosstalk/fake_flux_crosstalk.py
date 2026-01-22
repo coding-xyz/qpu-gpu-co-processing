@@ -1,10 +1,9 @@
-# src/flux/pseudo_experiment.py
+# src/crosstalk/fake_flux_crosstalk.py
 from __future__ import annotations
 from dataclasses import dataclass
 from typing import Dict, Any, Optional, Tuple
 
 import numpy as np
-
 
 def make_sparse_matrix(
     n: int,

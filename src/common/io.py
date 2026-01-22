@@ -25,6 +25,38 @@ def maybe_write_json(out_json: Optional[str], result: Dict[str, Any]) -> Dict[st
 def load_json(path: str) -> Dict[str, Any]:
     return json.loads(Path(path).read_text())
 
+def _jsonify(obj: Any) -> Any:
+    # ---- numpy dtype / scalar / array ----
+    if isinstance(obj, np.dtype):
+        return str(obj)
+
+    if isinstance(obj, np.generic):
+        return obj.item()
+
+    if isinstance(obj, np.ndarray):
+        return obj.tolist()
+
+    # ---- torch dtype / tensor ----
+    if torch is not None:
+        if isinstance(obj, torch.dtype):
+            return str(obj)          # e.g. "torch.float32"
+        if isinstance(obj, torch.device):
+            return str(obj)          # e.g. "cuda:0"
+        if isinstance(obj, torch.Tensor):
+            return obj.detach().cpu().tolist()
+
+    # ---- containers ----
+    if isinstance(obj, dict):
+        return {str(k): _jsonify(v) for k, v in obj.items()}
+
+    if isinstance(obj, (list, tuple)):
+        return [_jsonify(v) for v in obj]
+
+    return obj
+
+def to_json_str(obj, *, indent=2):
+    return json.dumps(_jsonify(obj), indent=indent, ensure_ascii=False)
+
 def save_npz(path: str, payload: Dict[str, Any]) -> None:
     arr = {}
     for k, v in payload.items():
@@ -78,36 +110,3 @@ def load_npz(path: str) -> Dict[str, Any]:
     if "n_qubits" in out:
         out["n_qubits"] = int(out["n_qubits"])
     return out
-
-
-def _jsonify(obj: Any) -> Any:
-    # ---- numpy dtype / scalar / array ----
-    if isinstance(obj, np.dtype):
-        return str(obj)
-
-    if isinstance(obj, np.generic):
-        return obj.item()
-
-    if isinstance(obj, np.ndarray):
-        return obj.tolist()
-
-    # ---- torch dtype / tensor ----
-    if torch is not None:
-        if isinstance(obj, torch.dtype):
-            return str(obj)          # e.g. "torch.float32"
-        if isinstance(obj, torch.device):
-            return str(obj)          # e.g. "cuda:0"
-        if isinstance(obj, torch.Tensor):
-            return obj.detach().cpu().tolist()
-
-    # ---- containers ----
-    if isinstance(obj, dict):
-        return {str(k): _jsonify(v) for k, v in obj.items()}
-
-    if isinstance(obj, (list, tuple)):
-        return [_jsonify(v) for v in obj]
-
-    return obj
-
-def to_json_str(obj, *, indent=2):
-    return json.dumps(_jsonify(obj), indent=indent, ensure_ascii=False)
