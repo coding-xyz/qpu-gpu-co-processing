@@ -47,44 +47,44 @@ def main():
     lda, his = train_simple(LDA(T), train_loader, device, epochs=args.epochs)
     acc, nll = eval_nn(lda, test_loader, device)
     results["Linear Classifier"] = {"acc": acc, "nll": nll, "time": his["training time"]}
-    flush_print(f"[A] Linear Classifier: acc={acc:.4f}  NLL={nll:.4f}, TIME={his["training time"]:.4f}")
+    flush_print(f"[A] Linear Classifier: acc={acc:.4f}  NLL={nll:.4f}, TIME={his['training time']:.4f}")
 
     # [B] Matched Filter
     mf, his = train_simple(MatchedFilter(T), train_loader, device, epochs=args.epochs)
     acc, nll = eval_nn(mf, test_loader, device)
     results["Matched Filter + LDA"] = {"acc": acc, "nll": nll, "time": his["training time"]}
-    flush_print(f"[B] Matched Filter + LDA: acc={acc:.4f}  NLL={nll:.4f}, TIME={his["training time"]:.4f}")
+    flush_print(f"[B] Matched Filter + LDA: acc={acc:.4f}  NLL={nll:.4f}, TIME={his['training time']:.4f}")
 
     # [C] Bayes-only
     acc, nll = eval_bayes(Xte, yte, mu0, mu1, sigma0, device)
     results["Bayes-only"] = {"acc": acc, "nll": nll}
     flush_print(f"[C] Bayes-only: acc={acc:.4f}  NLL={nll:.4f}")
 
-    # [D] Bayes-EM (weak anchor)
-    mu0_em2, mu1_em2, sigma_em2 = bayes_em_fit(
-        Xtr, n_iter=args.em_iter, anchor_mu0=mu0, anchor_strength=20.0, device=device
-    )
-    acc, nll = eval_bayes(Xte, yte, mu0_em2.numpy(), mu1_em2.numpy(), sigma_em2, device)
-    results["Bayes-EM (weak anchor)"] = {"acc": acc, "nll": nll, "sigma": sigma_em2}
-    flush_print(f"[D] Bayes-EM (weak anchor): acc={acc:.4f}  NLL={nll:.4f}  sigma={sigma_em2:.3f}")
+    # # [D] Bayes-EM (weak anchor)
+    # mu0_em2, mu1_em2, sigma_em2 = bayes_em_fit(
+    #     Xtr, n_iter=args.em_iter, anchor_mu0=mu0, anchor_strength=20.0, device=device
+    # )
+    # acc, nll = eval_bayes(Xte, yte, mu0_em2.numpy(), mu1_em2.numpy(), sigma_em2, device)
+    # results["Bayes-EM (weak anchor)"] = {"acc": acc, "nll": nll, "sigma": sigma_em2}
+    # flush_print(f"[D] Bayes-EM (weak anchor): acc={acc:.4f}  NLL={nll:.4f}  sigma={sigma_em2:.3f}")
 
-    # [E] CNN
-    cnn, his = train_simple(TinyCNN(T), train_loader, device, epochs=args.epochs)
-    acc, nll = eval_nn(cnn, test_loader, device)
-    results["CNN"] = {"acc": acc, "nll": nll, "time": his["training time"]}
-    flush_print(f"[E] CNN: acc={acc:.4f}  NLL={nll:.4f}, TIME={his["training time"]:.4f}")
+    # # [E] CNN
+    # cnn, his = train_simple(TinyCNN(T), train_loader, device, epochs=args.epochs)
+    # acc, nll = eval_nn(cnn, test_loader, device)
+    # results["CNN"] = {"acc": acc, "nll": nll, "time": his["training time"]}
+    # flush_print(f"[E] CNN: acc={acc:.4f}  NLL={nll:.4f}, TIME={his['training time']:.4f}")
     
-    # [F] Transformer
-    trm, his = train_simple(TinyTransformer(T), train_loader, device, epochs=args.epochs)
-    acc, nll = eval_nn(trm, test_loader, device)
-    results["Transformer"] = {"acc": acc, "nll": nll, "time": his["training time"]}
-    flush_print(f"[F] Transformer: acc={acc:.4f}  NLL={nll:.4f}, TIME={his["training time"]:.4f}")
+    # # [F] Transformer
+    # trm, his = train_simple(TinyTransformer(T), train_loader, device, epochs=args.epochs)
+    # acc, nll = eval_nn(trm, test_loader, device)
+    # results["Transformer"] = {"acc": acc, "nll": nll, "time": his["training time"]}
+    # flush_print(f"[F] Transformer: acc={acc:.4f}  NLL={nll:.4f}, TIME={his['training time']:.4f}")
 
-    # [G] Amortized Bayes + NN
-    ab, his = train_simple(AmortizedBayesNet(T, predict_sigma=True), train_loader, device, epochs=args.epochs)
-    acc, nll = eval_nn(ab, test_loader, device)
-    results["Amortized Bayes (NN)"] = {"acc": acc, "nll": nll, "time": his["training time"]}
-    flush_print(f"[G] Amortized Bayes (NN): acc={acc:.4f}  NLL={nll:.4f}, TIME={his["training time"]:.4f}")
+    # # [G] Amortized Bayes + NN
+    # ab, his = train_simple(AmortizedBayesNet(T, predict_sigma=True), train_loader, device, epochs=args.epochs)
+    # acc, nll = eval_nn(ab, test_loader, device)
+    # results["Amortized Bayes (NN)"] = {"acc": acc, "nll": nll, "time": his["training time"]}
+    # flush_print(f"[G] Amortized Bayes (NN): acc={acc:.4f}  NLL={nll:.4f}, TIME={his['training time']:.4f}")
 
     # # [H] HMM
     # sigma, p01, p10 = fit_hmm_templates_fixed(Xtr, mu0, mu1, n_iter=args.hmm_iter, init_sigma=sigma0, device=device)
