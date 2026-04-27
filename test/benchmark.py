@@ -6,7 +6,7 @@ sys.path.insert(0, str(_ROOT / "src"))
 import time
 
 from src.tomography.io import load_npz, save_json
-from src.tomography.tomo_1q import fit_1q_mle_spam
+from tomography.state_tomography import fit_1q_mle_spam
 from src.tomography.tomo_2q import fit_2q_mle_spam
 
 def _run(ds, device, steps=None, lr=None, seed=0):
