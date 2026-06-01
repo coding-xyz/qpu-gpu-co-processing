@@ -68,11 +68,11 @@ def main():
     # results["Bayes-EM (weak anchor)"] = {"acc": acc, "nll": nll, "sigma": sigma_em2}
     # flush_print(f"[D] Bayes-EM (weak anchor): acc={acc:.4f}  NLL={nll:.4f}  sigma={sigma_em2:.3f}")
 
-    # # [E] CNN
-    # cnn, his = train_simple(TinyCNN(T), train_loader, device, epochs=args.epochs)
-    # acc, nll = eval_nn(cnn, test_loader, device)
-    # results["CNN"] = {"acc": acc, "nll": nll, "time": his["training time"]}
-    # flush_print(f"[E] CNN: acc={acc:.4f}  NLL={nll:.4f}, TIME={his['training time']:.4f}")
+    # [E] CNN
+    cnn, his = train_simple(TinyCNN(T), train_loader, device, epochs=args.epochs)
+    acc, nll = eval_nn(cnn, test_loader, device)
+    results["CNN"] = {"acc": acc, "nll": nll, "time": his["training time"]}
+    flush_print(f"[E] CNN: acc={acc:.4f}  NLL={nll:.4f}, TIME={his['training time']:.4f}")
     
     # # [F] Transformer
     # trm, his = train_simple(TinyTransformer(T), train_loader, device, epochs=args.epochs)
